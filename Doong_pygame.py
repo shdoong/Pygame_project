@@ -15,6 +15,8 @@ blue = (0, 0, 255)
 
 clock = pygame.time.Clock()
 
+size = 15
+
 pygame.display.set_caption("Doong Pygame")
 
 def main():
@@ -27,6 +29,12 @@ def main():
 	x_change = 0
 	y_change = 0
 	movement = 10
+
+	randX = round(random.randrange(0, width - size)/10.0)*10.0
+	randY = round(random.randrange(0, height - size)/10.0)*10.0
+
+	#randX = random.randrange(0, width - size)
+	#randY = random.randrange(0, height - size)
 
 	gameDisplay = pygame.display.set_mode((width,height))
 
@@ -57,17 +65,22 @@ def main():
 		f = pygame.font.Font(None, 32)
 		if start_x >= width or start_x <= 0 or start_y >= height or start_y <= 0:
 			gameExit = True
-			label = f.render("Game over!", True, red)
-			gameDisplay.blit(label, [width/2, height/2])
-			pygame.display.update()
+			# label = f.render("Game over!", True, red)
+			# gameDisplay.blit(label, [width/2, height/2])
+			# pygame.display.update()
 
 		start_x += x_change
 		start_y += y_change
 
 		gameDisplay.fill(green)
-		pygame.draw.rect(gameDisplay, blue, [start_x, start_y, 15, 15])
+		pygame.draw.rect(gameDisplay, red, [randX, randY, size, size])
+		pygame.draw.rect(gameDisplay, blue, [start_x, start_y, size, size])
 		#pygame.draw.rect(gameDisplay, red, [100,200, 15, 15])
 		pygame.display.update()
+
+		if start_x == randX and start_y == randY:
+			randX = round(random.randrange(0, width - size)/10.0)*10.0
+			randY = round(random.randrange(0, height - size)/10.0)*10.0
 
 		clock.tick(fps)
 
