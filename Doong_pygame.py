@@ -23,12 +23,15 @@ class Monster(Sprite):
         self.size = self.image.get_size()
         size_inc = random.uniform(0, 2)
         self.image = pygame.transform.scale(self.image, (int(self.size[0]*size_inc), int(self.size[1]*size_inc)))
+        self.current_randX = randint(0, 650)
+        self.current_randY = randint(0, 450)
+        self.rect.center = (self.current_randX, self.current_randY)
 
-    # move gold to a new random location
     def move(self):
-        current_randX = randint(0, 650)
-        current_randY = randint(0, 450)
-        self.rect.center = (current_randX, current_randY)
+        move_x = randint(-50, 50)
+        move_y = randint(-50, 50)
+        self.rect.x = self.rect.x +  move_x
+        self.rect.y = self.rect.y + move_y
 
 class Player(Sprite):
     def __init__(self):
@@ -40,7 +43,7 @@ class Player(Sprite):
 
     def move(self):
         key = pygame.key.get_pressed()
-        dist = 0.5
+        dist = 0.25
   
         if key[pygame.K_DOWN]: # down key
             self.y_change += dist # move down
@@ -62,7 +65,7 @@ display.set_caption('Doong Pygame')
 
 sprites2 = pygame.sprite.Group()
 
-for x in range(randint(10, 20)):
+for x in range(randint(15, 25)):
     monster = Monster()
     sprites2.add(monster)
 
@@ -92,6 +95,7 @@ while not gameExit:
                 y.move()
     # refill background color so that we can paint sprites in new locations
     screen.fill(bgcolor)
+
     player.move()
     player.draw(screen)
     
