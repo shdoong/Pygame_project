@@ -1,117 +1,88 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+from pygame import *
+from pygame.sprite import *
+from random import *
 
-import random, sys, time, math, pygame
-pygame.init();
-from pygame.locals import *
-import time
-
-#defining colors
-white = (255,255,255)
-black = (0,0,0)
-red = (255, 0, 0)
+DELAY = 1000;            #Seed a timer to move sprite
 green = (34, 139, 34)
-blue = (0, 0, 255)
+bgcolor = green   #Color taken from background of sprite
 
-width = 800
-height = 600
-clock = pygame.time.Clock()
+class Monster(Sprite):
+    def __init__(self):
+        Sprite.__init__(self) #importan
+        self.image = image.load("monster.png").convert_alpha()
+        self.rect = self.image.get_rect()
 
-pygame.display.set_caption("Doong Pygame")
+    # move gold to a new random location
+    def move(self):
+        randX = randint(0, 600)
+        randY = randint(0, 400)
+        self.rect.center = (randX,randY)
 
-class randomEatees(pygame.sprite.Sprite):
-	def __init__(self, color, width, height):
-		super().__init__()
-		self.image = pygame.Surface([width, height])
-		self.image.fill(color)
-		self.rect = self.image.get_rect()
+class Shovel(Sprite):
+    def __init__(self):
+        Sprite.__init__(self)
+        self.image = image.load("shovel.gif").convert()
+        self.rect = self.image.get_rect()
 
-def main():
-	fps = 30 # frames per second to update the screen
-	start_size = 15
-	start_x = width/2
-	start_y = height/2
-	x_change = 0
-	y_change = 0
-	movement = 10
+    # Di shovel/cursor collide the gold?
+    def hit(self, target):
+        return self.rect.colliderect(target)
 
-	randX = round(random.randrange(0, width - start_size)/10.0)*10.0
-	randY = round(random.randrange(0, height - start_size)/10.0)*10.0
+    #The shovel sprite will move with the mousepointer
+    def update(self):
+        self.rect.center = mouse.get_pos()
 
-	#randX = random.randrange(0, width - size)
-	#randY = random.randrange(0, height - size)
 
-	gameDisplay = pygame.display.set_mode((width,height))
+#main
+init()
 
-	gameExit = False
+screen = display.set_mode((640, 480))
+display.set_caption('Doong Pygame')
 
-	block_list = pygame.sprite.Group()
-	all_sprites_list = pygame.sprite.Group()
+# hide the mouse cursor so we only see shovel
+mouse.set_visible(False)
 
-	for i in range(50):
+f = font.Font(None, 25)
 
-			block = randomEatees(black, 15, 15)
- 
-			block.rect.x = round(random.randrange(width)/10.0)*10.0
-			block.rect.y = round(random.randrange(height)/10.0)*10.0
+# create the mole and shovel using the constructors
+sprites2 = pygame.sprite.Group()
 
-			block_list.add(block)
-			all_sprites_list.add(block)
+for x in range(randint(5, 15)):
+    monster = Monster()
+    sprites2.add(monster)
 
-	while not gameExit:
+# creates a group of sprites so all can be updated at once
+sprites = RenderPlain(sprites2)
 
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				gameExit = True
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_LEFT:
-					x_change = -movement
-					y_change = 0
-				elif event.key == pygame.K_RIGHT:
-					x_change = movement
-					y_change = 0
-				elif event.key == pygame.K_UP:
-					y_change = -movement
-					x_change = 0
-				elif event.key == pygame.K_DOWN:
-					y_change = movement
-					x_change = 0
+hits = 0
+time.set_timer(USEREVENT + 1, DELAY)
 
-			if event.type == pygame.KEYUP:
-				if event.key == pygame.K_LEFT or pygame.K_RIGHT or pygame.K_UP or pygame.K_DOWN:
-					x_change = 0
-					y_change = 0
-	
-		f = pygame.font.Font(None, 32)
-		if start_x >= width or start_x <= 0 or start_y >= height or start_y <= 0:
-			gameExit = True
-			# label = f.render("Game over!", True, red)
-			# gameDisplay.blit(label, [width/2, height/2])
-			# pygame.display.update()
+# loop until user quits
+while True:
+    e = event.poll()
+    if e.type == QUIT:
+        quit()
+        break
 
-		start_x += x_change
-		start_y += y_change
+    elif e.type == MOUSEBUTTONDOWN:
+        if shovel.hit(monster):
+            mixer.Sound("cha-ching.wav").play()
+            gold.move()
+            hits += 1
 
-		gameDisplay.fill(green)
-		pygame.draw.rect(gameDisplay, red, [randX, randY, start_size, start_size])
-		pygame.draw.rect(gameDisplay, blue, [start_x, start_y, start_size, start_size])
-		#pygame.draw.rect(gameDisplay, red, [100,200, 15, 15])
-		pygame.display.update()
+            # reset timer
+            time.set_timer(USEREVENT + 1, DELAY)
+            
+    elif e.type == USEREVENT + 1: # TIME has passed
+        for y in sprites2:
+            y.move()
 
-		if start_x == randX and start_y == randY:
-			randX = round(random.randrange(0, width - start_size)/10.0)*10.0
-			randY = round(random.randrange(0, height - start_size)/10.0)*10.0
+    # refill background color so that we can paint sprites in new locations
+    screen.fill(bgcolor)
+    t = f.render("Jackpot = " + str(hits), False, (0,0,0))
+    screen.blit(t, (320, 0))        # draw text to screen.  Can you move it?
 
-		all_sprites_list.draw(gameDisplay)
-
-		if start_x == block.rect.x and start_y == block.rect.y:
-			gameExit = True
-
-		#pygame.display.flip()
-
-		clock.tick(fps)
-
-	pygame.quit()
-	quit()
-
-main()
+    # update and redraw sprites
+    sprites.update()
+    sprites.draw(screen)
+    display.update()
