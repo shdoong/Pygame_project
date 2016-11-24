@@ -1,30 +1,45 @@
+#Name: Susan Doong
+#Uniqname: shdoong
+#Student ID: 07675004
+#References: in class gold_game.py code, thenewboston Pygame tutorials on Youtube: https://www.youtube.com/watch?v=K5F-aGDIYaM
+
 from pygame import *
 from pygame.sprite import *
 from random import *
 import random 
+import sys
 
+#constants for program
 DELAY = 1000;            #Seed a timer to move sprite
-white = (255,255,255)
-black = (0,0,0)
-red = (255, 0, 0)
-green = (34, 139, 34)
-blue = (0, 0, 255)
+
+#colors
+WHITE = (255,255,255)
+BLACK = (0,0,0)
+RED = (255, 0, 0)
+GREEN = (34, 139, 34)
+BLUE = (0, 0, 255)
+
+FPS = 60
 
 width = 800
 height = 600
 
-bgcolor = green   #Color taken from background of sprite
+bgcolor = GREEN   #Color for background
 
+clock = pygame.time.Clock()
+
+#creating Sprite groups
 monster_sprites = pygame.sprite.Group()
 player_sprite = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 
 class Monster(Sprite):
     def __init__(self):
-        Sprite.__init__(self) #importan
+        Sprite.__init__(self) 
         self.image = image.load("monster.png").convert_alpha()
         self.size = self.image.get_size()
-        size_inc = random.uniform(0.25, 2)
+        size_inc = random.uniform(0.25, 2.5)
+        #using transform.scale to make each monster a different size
         self.image = pygame.transform.scale(self.image, (int(self.size[0]*size_inc), int(self.size[1]*size_inc)))
         self.rect = self.image.get_rect()
         self.rect.x = randint(0, 750)
@@ -44,12 +59,12 @@ class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         self.image = image.load("player.png").convert_alpha()
+        self.size = self.image.get_size()
         self.rect = self.image.get_rect()
 
     def update(self):
         key = pygame.key.get_pressed()
-       
-        dist = 1 # distance moved in 1 frame
+        dist = 4 # distance moved in 1 frame
         if key[pygame.K_DOWN]: # down key
             self.rect.y += dist # move down
         elif key[pygame.K_UP]: # up key
@@ -62,11 +77,24 @@ class Player(Sprite):
     def draw(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
 
+    def inc_size(self): #increases size of player when it eats smaller monsters
+        self.size = self.image.get_size()
+        if self.size[0] < 50 and self.size[1] < 63:
+            self.image = pygame.transform.scale(self.image, (int(self.size[0]*1.3), int(self.size[1]*1.3)))
+        self.size = self.image.get_size()
+
 def make_monsters():
     for x in range(randint(20, 30)):
         monster = Monster()
         monster_sprites.add(monster)
         all_sprites.add(monster)
+
+def message(msg, color, screencolor, screen, width, height):
+    myfont = pygame.font.SysFont(None, 30)
+    screen.fill(screencolor)
+    label = myfont.render(msg, 1, color)
+    screen.blit(label, (width, height))
+    pygame.display.flip()
 
 def main():
     movement = 10
@@ -78,8 +106,6 @@ def main():
     make_monsters()
 
     player = Player()
-    #player_sprite.add(player)
-    #all_sprites.add(player)
 
     # creates a group of sprites so all can be updated at once
     sprites2 = RenderPlain(monster_sprites)
@@ -87,9 +113,14 @@ def main():
     time.set_timer(USEREVENT + 1, DELAY)
 
     gameExit = False
+    gameOver = False
+
+    message("Monster Eats Monster Game", BLACK, WHITE, screen, 250, 300) #display screen before game starts
+    pygame.time.delay(2000) #delay game start
 
     # loop until user quits ------------- main --------------------- #
     while not gameExit:
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 quit()
@@ -97,19 +128,35 @@ def main():
       
             elif event.type == USEREVENT + 1: 
                 for y in monster_sprites:
-                    y.move()
+                    y.move() #each monster move in random direction
 
-        remove = False
+        remove = True
 
-        collide_list = pygame.sprite.spritecollide(player, monster_sprites, remove)
+        collide_list = pygame.sprite.spritecollide(player, monster_sprites, remove) #collision detection
 
         for hit in collide_list:
-            if player.rect.size > hit.rect.size:
-                remove = True 
-                
-        if len(collide_list) > 0:
-            print (collide_list)
-            print ("hi")
+            print ("monster size ", hit.rect.size)
+            if player.rect.size < hit.rect.size: #checks if player is smaller than monster
+                message("You got eaten!", RED, BLACK, screen, 300, 300)
+                pygame.time.delay(2000)
+                gameOver = True
+            else:
+                player.inc_size()
+                print (player.rect.size)
+
+        while gameOver == True:
+            screen.fill(BLACK)
+            message("Game over. Q to quit or P to play again.", RED, BLACK, screen, 200, 300)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q: #if key q is pressed
+                        gameExit = True
+                        gameOver = False
+                    if event.key == pygame.K_p: #if key p is pressed
+                        monster_sprites.empty() #reset monster_sprites list
+                        main()
             
         # refill background color so that we can paint sprites in new locations
         screen.fill(bgcolor)
@@ -122,5 +169,7 @@ def main():
         monster_sprites.draw(screen)
         
         display.update()
+
+        clock.tick(FPS) #limits to 60 frames per second
 
 main()
