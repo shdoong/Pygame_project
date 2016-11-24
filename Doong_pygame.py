@@ -10,96 +10,117 @@ red = (255, 0, 0)
 green = (34, 139, 34)
 blue = (0, 0, 255)
 
-width = 700
-height = 500
+width = 800
+height = 600
 
 bgcolor = green   #Color taken from background of sprite
+
+monster_sprites = pygame.sprite.Group()
+player_sprite = pygame.sprite.Group()
+all_sprites = pygame.sprite.Group()
 
 class Monster(Sprite):
     def __init__(self):
         Sprite.__init__(self) #importan
         self.image = image.load("monster.png").convert_alpha()
-        self.rect = self.image.get_rect()
         self.size = self.image.get_size()
-        size_inc = random.uniform(0, 2)
+        size_inc = random.uniform(0.25, 2)
         self.image = pygame.transform.scale(self.image, (int(self.size[0]*size_inc), int(self.size[1]*size_inc)))
-        self.current_randX = randint(0, 650)
-        self.current_randY = randint(0, 450)
-        self.rect.center = (self.current_randX, self.current_randY)
-
+        self.rect = self.image.get_rect()
+        self.rect.x = randint(0, 750)
+        self.rect.y = randint(0, 550)
+        
     def move(self):
-        move_x = randint(-50, 50)
-        move_y = randint(-50, 50)
-        self.rect.x = self.rect.x +  move_x
-        self.rect.y = self.rect.y + move_y
+        self.move_x = randint(-50, 50)
+        self.move_y = randint(-50, 50)
+        self.rect.x += self.move_x
+        self.rect.y += self.move_y
+        if self.rect.x > 760:
+            self.rect.x -= 20
+        if self.rect.y > 560:
+            self.rect.y -= 20
 
 class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         self.image = image.load("player.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.x_change = width/2
-        self.y_change = height/2
 
-    def move(self):
+    def update(self):
         key = pygame.key.get_pressed()
-        dist = 0.25
-  
+       
+        dist = 1 # distance moved in 1 frame
         if key[pygame.K_DOWN]: # down key
-            self.y_change += dist # move down
+            self.rect.y += dist # move down
         elif key[pygame.K_UP]: # up key
-            self.y_change -= dist # move up
+            self.rect.y -= dist # move up
         if key[pygame.K_RIGHT]: # right key
-            self.x_change += dist # move right
+            self.rect.x += dist # move right
         elif key[pygame.K_LEFT]: # left key
-            self.x_change -= dist # move left
+            self.rect.x -= dist # move left
 
     def draw(self, surface):
-        surface.blit(self.image, (self.x_change, self.y_change))
+        surface.blit(self.image, (self.rect.x, self.rect.y))
 
-movement = 10
-init()
+def make_monsters():
+    for x in range(randint(20, 30)):
+        monster = Monster()
+        monster_sprites.add(monster)
+        all_sprites.add(monster)
 
-screen = display.set_mode((width, height))
-display.set_caption('Doong Pygame')
+def main():
+    movement = 10
+    init()
 
-sprites2 = pygame.sprite.Group()
+    screen = display.set_mode((width, height))
+    display.set_caption('Doong Pygame')
 
-for x in range(randint(15, 25)):
-    monster = Monster()
-    sprites2.add(monster)
+    make_monsters()
 
-player = Player()
-# creates a group of sprites so all can be updated at once
-sprites = RenderPlain(sprites2)
+    player = Player()
+    #player_sprite.add(player)
+    #all_sprites.add(player)
 
-hits = 0
-time.set_timer(USEREVENT + 1, DELAY)
+    # creates a group of sprites so all can be updated at once
+    sprites2 = RenderPlain(monster_sprites)
 
-movement = 10
-start_x = 0
-start_y = 0
-x_change = 0
-y_change = 0
+    time.set_timer(USEREVENT + 1, DELAY)
 
-gameExit = False
-# loop until user quits
-while not gameExit:
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            quit()
-            break
+    gameExit = False
 
-        elif event.type == USEREVENT + 1: 
-            for y in sprites2:
-                y.move()
-    # refill background color so that we can paint sprites in new locations
-    screen.fill(bgcolor)
+    # loop until user quits ------------- main --------------------- #
+    while not gameExit:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                quit()
+                break
+      
+            elif event.type == USEREVENT + 1: 
+                for y in monster_sprites:
+                    y.move()
 
-    player.move()
-    player.draw(screen)
-    
-    # update and redraw sprites
-    sprites.update()
-    sprites.draw(screen)
-    display.update()
+        remove = False
+
+        collide_list = pygame.sprite.spritecollide(player, monster_sprites, remove)
+
+        for hit in collide_list:
+            if player.rect.size > hit.rect.size:
+                remove = True 
+                
+        if len(collide_list) > 0:
+            print (collide_list)
+            print ("hi")
+            
+        # refill background color so that we can paint sprites in new locations
+        screen.fill(bgcolor)
+
+        player.update()
+        player.draw(screen)
+        
+        # update and redraw sprites
+        monster_sprites.update()
+        monster_sprites.draw(screen)
+        
+        display.update()
+
+main()
