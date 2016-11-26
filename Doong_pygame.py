@@ -36,7 +36,7 @@ all_sprites = pygame.sprite.Group()
 class Monster(Sprite):
     def __init__(self):
         Sprite.__init__(self) 
-        self.image = image.load("monster.png").convert_alpha()
+        self.image = image.load("cookie.png").convert_alpha()
         self.size = self.image.get_size()
         size_inc = random.uniform(0.25, 2.5)
         #using transform.scale to make each monster a different size
@@ -58,7 +58,7 @@ class Monster(Sprite):
 class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
-        self.image = image.load("player.png").convert_alpha()
+        self.image = image.load("cookie_monster.png").convert_alpha()
         self.size = self.image.get_size()
         self.rect = self.image.get_rect()
 
@@ -80,8 +80,9 @@ class Player(Sprite):
     def inc_size(self): #increases size of player when it eats smaller monsters
         self.size = self.image.get_size()
         if self.size[0] < 50 and self.size[1] < 63:
-            self.image = pygame.transform.scale(self.image, (int(self.size[0]*1.3), int(self.size[1]*1.3)))
-        self.size = self.image.get_size()
+            self.image = pygame.transform.scale(self.image, (int(self.size[0]+2), int(self.size[1]+2)))
+            self.rect.inflate_ip(2, 2)
+        #self.size = self.image.get_size()
 
 def make_monsters():
     for x in range(randint(20, 30)):
@@ -115,7 +116,7 @@ def main():
     gameExit = False
     gameOver = False
 
-    message("Monster Eats Monster Game", BLACK, WHITE, screen, 250, 300) #display screen before game starts
+    message("Monster Eats Cookie Game", BLACK, WHITE, screen, 250, 300) #display screen before game starts
     pygame.time.delay(2000) #delay game start
 
     # loop until user quits ------------- main --------------------- #
@@ -137,12 +138,15 @@ def main():
         for hit in collide_list:
             print ("monster size ", hit.rect.size)
             if player.rect.size < hit.rect.size: #checks if player is smaller than monster
-                message("You got eaten!", RED, BLACK, screen, 300, 300)
+                message("You got squashed by a giant cookie!", RED, BLACK, screen, 225, 300)
                 pygame.time.delay(2000)
                 gameOver = True
             else:
                 player.inc_size()
                 print (player.rect.size)
+
+            if len(collide_list) == 0:
+                message("You win!", GREEN, WHITE, screen, 300, 300)
 
         while gameOver == True:
             screen.fill(BLACK)
