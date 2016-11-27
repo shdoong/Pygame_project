@@ -59,6 +59,7 @@ class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         self.image = image.load("cookie_monster.png").convert_alpha()
+        #self.image = pygame.transform.scale(self.image, (int(self.size[0]*size_inc), int(self.size[1]*size_inc)))
         self.size = self.image.get_size()
         self.rect = self.image.get_rect()
 
@@ -80,12 +81,12 @@ class Player(Sprite):
     def inc_size(self): #increases size of player when it eats smaller monsters
         self.size = self.image.get_size()
         if self.size[0] < 50 and self.size[1] < 63:
-            self.image = pygame.transform.scale(self.image, (int(self.size[0]+2), int(self.size[1]+2)))
-            self.rect.inflate_ip(2, 2)
+            self.image = pygame.transform.scale(self.image, (int(self.size[0]+2), int(self.size[1]+2))) #visually increase size
+            self.rect.inflate_ip(2, 2) #actually increase size
         #self.size = self.image.get_size()
 
 def make_monsters():
-    for x in range(randint(20, 30)):
+    for x in range(randint(1, 2)): #makes between 20 to 30 random monsters
         monster = Monster()
         monster_sprites.add(monster)
         all_sprites.add(monster)
@@ -137,27 +138,32 @@ def main():
 
         for hit in collide_list:
             print ("monster size ", hit.rect.size)
+            print (len(monster_sprites))
+
             if player.rect.size < hit.rect.size: #checks if player is smaller than monster
-                message("You got squashed by a giant cookie!", RED, BLACK, screen, 225, 300)
+                message("Game Over. You got squashed by a giant cookie!", RED, BLACK, screen, 190, 300)
                 pygame.time.delay(2000)
                 gameOver = True
+
             else:
                 player.inc_size()
                 print (player.rect.size)
 
-            if len(collide_list) == 0:
-                message("You win!", GREEN, WHITE, screen, 300, 300)
+                if len(monster_sprites) == 0:
+                    screen.fill(WHITE)
+                    message("You win! You ate all the cookies!", GREEN, WHITE, screen, 225, 300)
+                    pygame.time.delay(2000)
+                    gameOver = True
 
         while gameOver == True:
             screen.fill(BLACK)
-            message("Game over. Q to quit or P to play again.", RED, BLACK, screen, 200, 300)
+            message("Q to quit or P to play again.", RED, BLACK, screen, 275, 300)
             pygame.display.update()
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q: #if key q is pressed
-                        gameExit = True
-                        gameOver = False
+                        exit()
                     if event.key == pygame.K_p: #if key p is pressed
                         monster_sprites.empty() #reset monster_sprites list
                         main()
