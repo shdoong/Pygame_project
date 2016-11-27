@@ -1,7 +1,8 @@
 #Name: Susan Doong
 #Uniqname: shdoong
 #Student ID: 07675004
-#References: in class gold_game.py code, thenewboston Pygame tutorials on Youtube: https://www.youtube.com/watch?v=K5F-aGDIYaM
+#References: in class gold_game.py code, thenewboston Pygame tutorials on Youtube: https://www.youtube.com/watch?v=K5F-aGDIYaM,
+#http://www.pygame.org/docs/ref/transform.html, http://www.pygame.org/docs/ref/rect.html
 
 from pygame import *
 from pygame.sprite import *
@@ -29,11 +30,11 @@ bgcolor = GREEN   #Color for background
 clock = pygame.time.Clock()
 
 #creating Sprite groups
-monster_sprites = pygame.sprite.Group()
+cookie_sprites = pygame.sprite.Group()
 player_sprite = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 
-class Monster(Sprite):
+class Cookie(Sprite):
     def __init__(self):
         Sprite.__init__(self) 
         self.image = image.load("cookie.png").convert_alpha()
@@ -42,18 +43,23 @@ class Monster(Sprite):
         #using transform.scale to make each monster a different size
         self.image = pygame.transform.scale(self.image, (int(self.size[0]*size_inc), int(self.size[1]*size_inc)))
         self.rect = self.image.get_rect()
-        self.rect.x = randint(0, 750)
-        self.rect.y = randint(0, 550)
+        self.rect.x = randint(50, 750)
+        self.rect.y = randint(50, 550)
         
     def move(self):
         self.move_x = randint(-50, 50)
         self.move_y = randint(-50, 50)
         self.rect.x += self.move_x
         self.rect.y += self.move_y
-        if self.rect.x > 760:
+        #adding boundaries
+        if self.rect.x > 750:
             self.rect.x -= 20
-        if self.rect.y > 560:
+        if self.rect.x < 50:
+            self.rect.x += 20
+        if self.rect.y > 560: 
             self.rect.y -= 20
+        if self.rect.y < 50:
+            self.rect.y += 20
 
 class Player(Sprite):
     def __init__(self):
@@ -85,11 +91,11 @@ class Player(Sprite):
             self.rect.inflate_ip(2, 2) #actually increase size
         #self.size = self.image.get_size()
 
-def make_monsters():
-    for x in range(randint(1, 2)): #makes between 20 to 30 random monsters
-        monster = Monster()
-        monster_sprites.add(monster)
-        all_sprites.add(monster)
+def make_cookies():
+    for x in range(randint(20, 30)): #makes between 20 to 30 random cookies
+        cookie = Cookie()
+        cookie_sprites.add(cookie)
+        all_sprites.add(cookie)
 
 def message(msg, color, screencolor, screen, width, height):
     myfont = pygame.font.SysFont(None, 30)
@@ -105,12 +111,12 @@ def main():
     screen = display.set_mode((width, height))
     display.set_caption('Doong Pygame')
 
-    make_monsters()
+    make_cookies()
 
     player = Player()
 
     # creates a group of sprites so all can be updated at once
-    sprites2 = RenderPlain(monster_sprites)
+    sprites2 = RenderPlain(cookie_sprites)
 
     time.set_timer(USEREVENT + 1, DELAY)
 
@@ -129,16 +135,16 @@ def main():
                 break
       
             elif event.type == USEREVENT + 1: 
-                for y in monster_sprites:
-                    y.move() #each monster move in random direction
+                for y in cookie_sprites:
+                    y.move() #each cookie move in random direction
 
         remove = True
 
-        collide_list = pygame.sprite.spritecollide(player, monster_sprites, remove) #collision detection
+        collide_list = pygame.sprite.spritecollide(player, cookie_sprites, remove) #collision detection
 
         for hit in collide_list:
             print ("monster size ", hit.rect.size)
-            print (len(monster_sprites))
+            print (len(cookie_sprites))
 
             if player.rect.size < hit.rect.size: #checks if player is smaller than monster
                 message("Game Over. You got squashed by a giant cookie!", RED, BLACK, screen, 190, 300)
@@ -149,7 +155,7 @@ def main():
                 player.inc_size()
                 print (player.rect.size)
 
-                if len(monster_sprites) == 0:
+                if len(cookie_sprites) == 0: #if no more cookies, then player wins
                     screen.fill(WHITE)
                     message("You win! You ate all the cookies!", GREEN, WHITE, screen, 225, 300)
                     pygame.time.delay(2000)
@@ -165,7 +171,7 @@ def main():
                     if event.key == pygame.K_q: #if key q is pressed
                         exit()
                     if event.key == pygame.K_p: #if key p is pressed
-                        monster_sprites.empty() #reset monster_sprites list
+                        cookie_sprites.empty() #reset cookie_sprites list
                         main()
             
         # refill background color so that we can paint sprites in new locations
@@ -175,8 +181,8 @@ def main():
         player.draw(screen)
         
         # update and redraw sprites
-        monster_sprites.update()
-        monster_sprites.draw(screen)
+        cookie_sprites.update()
+        cookie_sprites.draw(screen)
         
         display.update()
 
