@@ -67,8 +67,8 @@ class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         self.image = image.load("cookie_monster.png").convert_alpha()
-        #self.image = pygame.transform.scale(self.image, (int(self.size[0]*size_inc), int(self.size[1]*size_inc)))
         self.size = self.image.get_size()
+        #self.image = pygame.transform.scale(self.image, (int(self.size[0]*0.02), int(self.size[1]*0.02)))
         self.rect = self.image.get_rect()
 
     def update(self):
@@ -88,9 +88,9 @@ class Player(Sprite):
 
     def inc_size(self): #increases size of player when it eats smaller monsters
         self.size = self.image.get_size()
-        self.image = pygame.transform.scale(self.image, (int(self.size[0]+2), int(self.size[1]+2))) #visually increase size
-        self.rect.inflate_ip(2, 2) #actually increase size
-        #self.size = self.image.get_size()
+        self.image = pygame.transform.scale(self.image, (int(self.size[0]+2), int(self.size[1]+2))) #increases size
+        print (self.image.get_size())
+        #self.rect.inflate_ip(2, 2) #actually increase size
 
 def make_cookies(minc, maxc, cookie_max):
     for x in range(randint(minc, maxc)): #makes between minc and maxc random cookies
@@ -108,12 +108,12 @@ def message(msg, color, screencolor, screen, width, height):
 screen = display.set_mode((width, height))
 
 #Intro screens and instructions
-message("Monster Eats Cookie Game", BLACK, WHITE, screen, 250, 300) #display screen before game starts
-pygame.time.delay(2000)
-message("Eat as many cookies as you can but don't get squashed by bigger cookies!", BLACK, WHITE, screen, 30, 325)
-pygame.time.delay(3000)
-message("You can only eat smaller cookies, but you get bigger with each cookie you eat!", BLACK, WHITE, screen, 20, 325)
-pygame.time.delay(3000) #delay game start
+# message("Monster Eats Cookie Game", BLACK, WHITE, screen, 250, 300) #display screen before game starts
+# pygame.time.delay(2000)
+# message("Eat as many cookies as you can but don't get squashed by bigger cookies!", BLACK, WHITE, screen, 30, 325)
+# pygame.time.delay(3000)
+# message("You can only eat smaller cookies, but you get bigger with each cookie you eat!", BLACK, WHITE, screen, 20, 325)
+# pygame.time.delay(3000) #delay game start
 
 def main():
     score = 0
@@ -190,7 +190,7 @@ def main():
 
             else:
                 player.inc_size()
-                
+
                 if len(cookie_sprites) == 0: #if no more cookies, then player wins
                     screen.fill(WHITE)
                     mixer.Sound("tada.wav").play()
@@ -215,7 +215,7 @@ def main():
         screen.fill(bgcolor)
 
         myfont2 = font.Font(None, 25)
-        t = myfont2.render("Cookies Eaten = " + str(score), False, WHITE) #score counter
+        t = myfont2.render("Cookies Eaten = " + str(score), False, WHITE) #shows score counter
         screen.blit(t, (320, 0))  
 
         player.update()
