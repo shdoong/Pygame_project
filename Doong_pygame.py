@@ -19,13 +19,14 @@ BLACK = (0,0,0)
 RED = (255, 0, 0)
 GREEN = (34, 139, 34)
 BLUE = (0, 0, 255)
+HONEYDEW = (240, 255, 240)
 
 FPS = 60
 
 width = 800
 height = 600
 
-bgcolor = GREEN   #Color for background
+bgcolor = HONEYDEW  #Color for background
 
 clock = pygame.time.Clock()
 
@@ -66,9 +67,9 @@ class Cookie(Sprite):
 class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
-        self.image = image.load("cookie_monster.png").convert_alpha()
+        self.image = image.load("cookiemonster2.png").convert_alpha()
         self.size = self.image.get_size()
-        #self.image = pygame.transform.scale(self.image, (int(self.size[0]*0.02), int(self.size[1]*0.02)))
+        #self.image = pygame.transform.scale(self.image, (int(self.size[0]*0.1), int(self.size[1]*0.1)))
         self.rect = self.image.get_rect()
 
     def update(self):
@@ -147,21 +148,20 @@ def main():
                 if event.key == pygame.K_1: 
                     minc = 8
                     maxc = 12
-                    cookie_max = 1.4
+                    cookie_max = 1.3
                     intro = False
                 if event.key == pygame.K_2: 
                     minc = 15
                     maxc = 20
-                    cookie_max = 2
+                    cookie_max = 1.8
                     intro = False
                 if event.key == pygame.K_3: 
                     minc = 23
                     maxc = 28
-                    cookie_max = 2.3
+                    cookie_max = 2.0
                     intro = False
 
     make_cookies(minc, maxc, cookie_max)
-
     # loop until user quits ------------- main --------------------- #
     while not gameExit:
 
@@ -215,7 +215,7 @@ def main():
         screen.fill(bgcolor)
 
         myfont2 = font.Font(None, 25)
-        t = myfont2.render("Cookies Eaten = " + str(score), False, WHITE) #shows score counter
+        t = myfont2.render("Cookies Eaten = " + str(score), False, BLACK) #shows score counter
         screen.blit(t, (320, 0))  
 
         player.update()
