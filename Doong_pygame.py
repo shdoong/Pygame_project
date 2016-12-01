@@ -9,7 +9,6 @@ from pygame.sprite import *
 from random import *
 import random 
 import sys
-from PIL import Image
 
 #constants for program
 DELAY = 1000; #Seed a timer to move sprite
@@ -69,11 +68,7 @@ class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         self.image = image.load("cookiemonster2.png").convert_alpha()
-        #im = Image.open("cookie_monster2.png")
-        #im_resized = im.resize((25,27), Image.ANTIALIAS)
-        #self.image = im_resized
         self.size = self.image.get_size()
-        #self.image = pygame.transform.scale(self.image, (int(self.size[0]*0.1), int(self.size[1]*0.1)))
         self.rect = self.image.get_rect()
 
     def update(self): #handles player movement and boundaries
@@ -81,7 +76,7 @@ class Player(Sprite):
         dist = 4 # distance moved in 1 frame
         if key[pygame.K_DOWN]: # down key
             self.rect.y += dist # move down
-            if self.rect.y < 0: #if player tries to go off screen
+            if self.rect.y < 0: #adds boundaries if player tries to go off screen
                 self.rect.y = 0
             elif self.rect.y > height - 25:
                 self.rect.y = height - 25
@@ -103,6 +98,8 @@ class Player(Sprite):
                 self.rect.x = 0
             elif self.rect.x > width - 25:
                 self.rect.x = width - 25
+        elif key[pygame.K_q]:
+            exit()
 
     def draw(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
@@ -110,7 +107,6 @@ class Player(Sprite):
     def inc_size(self): #increases size of player when it eats smaller monsters
         self.size = self.image.get_size()
         self.image = pygame.transform.scale(self.image, (int(self.size[0]+2), int(self.size[1]+2))) #increases size visually
-        #print (self.image.get_size())
         self.rect.inflate_ip(2, 2) #increase size internally
 
 def make_cookies(minc, maxc, cookie_max):
@@ -129,12 +125,12 @@ def message(msg, color, screencolor, screen, width, height):
 screen = display.set_mode((width, height))
 
 #Intro screens and instructions
-# message("Monster Eats Cookie Game", BLACK, WHITE, screen, 250, 300) #display screen before game starts
-# pygame.time.delay(2000)
-# message("Eat as many cookies as you can but don't get squashed by bigger cookies!", BLACK, WHITE, screen, 30, 325)
-# pygame.time.delay(3000)
-# message("You can only eat smaller cookies, but you get bigger with each cookie you eat!", BLACK, WHITE, screen, 20, 325)
-# pygame.time.delay(3000) #delay game start
+message("Monster Eats Cookie Game", BLACK, WHITE, screen, 250, 300) #display screen before game starts
+pygame.time.delay(2000)
+message("Eat as many cookies as you can but don't get squashed by bigger cookies!", BLACK, WHITE, screen, 30, 325)
+pygame.time.delay(3000)
+message("You can only eat smaller cookies, but you get bigger with each cookie you eat!", BLACK, WHITE, screen, 20, 325)
+pygame.time.delay(3000) #delay game start
 
 def main():
     score = 0
@@ -200,8 +196,9 @@ def main():
 
         for hit in collide_list:
             score += 1
-            mixer.Sound("bitesound.wav").play()
+            mixer.Sound("bitesound.wav").play() #play sound each time monster eats a cookie
 
+            #testing for losing
             if player.rect.size < hit.rect.size: #checks if player is smaller than monster
                 print ("cookie: ", hit.rect.size)
                 print ("player: ", player.rect.size)
@@ -213,6 +210,7 @@ def main():
             else:
                 player.inc_size()
 
+                #testing for winning
                 if len(cookie_sprites) == 0: #if no more cookies, then player wins
                     screen.fill(WHITE)
                     mixer.Sound("tada.wav").play()
@@ -220,6 +218,7 @@ def main():
                     pygame.time.delay(2000)
                     gameOver = True
 
+        #Option for user to play again or quit once they lose or win
         while gameOver == True:
             screen.fill(BLACK)
             message("Q to quit or P to play again.", RED, BLACK, screen, 250, 300)
