@@ -9,6 +9,7 @@ from pygame.sprite import *
 from random import *
 import random 
 import sys
+from PIL import Image
 
 #constants for program
 DELAY = 1000; #Seed a timer to move sprite
@@ -46,7 +47,7 @@ class Cookie(Sprite):
         #using transform.scale to make each monster a different size
         self.image = pygame.transform.scale(self.image, (int(self.size[0]*size_inc), int(self.size[1]*size_inc)))
         self.rect = self.image.get_rect()
-        self.rect.x = randint(50, 750)
+        self.rect.x = randint(50, 750) #randomizes starting location
         self.rect.y = randint(50, 550)
         
     def move(self): #cookie's random movements
@@ -54,7 +55,7 @@ class Cookie(Sprite):
         self.move_y = randint(-50, 50)
         self.rect.x += self.move_x
         self.rect.y += self.move_y
-        #adding boundaries
+        #adding boundaries to cookie movement
         if self.rect.x > 750:
             self.rect.x -= 20
         if self.rect.x < 50:
@@ -68,30 +69,49 @@ class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         self.image = image.load("cookiemonster2.png").convert_alpha()
+        #im = Image.open("cookie_monster2.png")
+        #im_resized = im.resize((25,27), Image.ANTIALIAS)
+        #self.image = im_resized
         self.size = self.image.get_size()
         #self.image = pygame.transform.scale(self.image, (int(self.size[0]*0.1), int(self.size[1]*0.1)))
         self.rect = self.image.get_rect()
 
-    def update(self):
+    def update(self): #handles player movement and boundaries
         key = pygame.key.get_pressed()
         dist = 4 # distance moved in 1 frame
         if key[pygame.K_DOWN]: # down key
             self.rect.y += dist # move down
+            if self.rect.y < 0: #if player tries to go off screen
+                self.rect.y = 0
+            elif self.rect.y > height - 25:
+                self.rect.y = height - 25
         elif key[pygame.K_UP]: # up key
             self.rect.y -= dist # move up
+            if self.rect.y < 0:
+                self.rect.y = 0
+            elif self.rect.y > height - 25:
+                self.rect.y = height - 25
         if key[pygame.K_RIGHT]: # right key
             self.rect.x += dist # move right
+            if self.rect.x < 0:
+                self.rect.x = 0
+            elif self.rect.x > width - 25:
+                self.rect.x = width - 25
         elif key[pygame.K_LEFT]: # left key
             self.rect.x -= dist # move left
+            if self.rect.x < 0:
+                self.rect.x = 0
+            elif self.rect.x > width - 25:
+                self.rect.x = width - 25
 
     def draw(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
 
     def inc_size(self): #increases size of player when it eats smaller monsters
         self.size = self.image.get_size()
-        self.image = pygame.transform.scale(self.image, (int(self.size[0]+2), int(self.size[1]+2))) #increases size
-        print (self.image.get_size())
-        #self.rect.inflate_ip(2, 2) #actually increase size
+        self.image = pygame.transform.scale(self.image, (int(self.size[0]+2), int(self.size[1]+2))) #increases size visually
+        #print (self.image.get_size())
+        self.rect.inflate_ip(2, 2) #increase size internally
 
 def make_cookies(minc, maxc, cookie_max):
     for x in range(randint(minc, maxc)): #makes between minc and maxc random cookies
@@ -148,17 +168,17 @@ def main():
                 if event.key == pygame.K_1: 
                     minc = 8
                     maxc = 12
-                    cookie_max = 1.3
+                    cookie_max = 1.1
                     intro = False
                 if event.key == pygame.K_2: 
                     minc = 15
                     maxc = 20
-                    cookie_max = 1.8
+                    cookie_max = 1.4
                     intro = False
                 if event.key == pygame.K_3: 
                     minc = 23
                     maxc = 28
-                    cookie_max = 2.0
+                    cookie_max = 1.8
                     intro = False
 
     make_cookies(minc, maxc, cookie_max)
@@ -183,6 +203,8 @@ def main():
             mixer.Sound("bitesound.wav").play()
 
             if player.rect.size < hit.rect.size: #checks if player is smaller than monster
+                print ("cookie: ", hit.rect.size)
+                print ("player: ", player.rect.size)
                 mixer.Sound("lost.wav").play()
                 message("Game Over. You got squashed by a giant cookie!", RED, BLACK, screen, 170, 300)
                 pygame.time.delay(2000)
