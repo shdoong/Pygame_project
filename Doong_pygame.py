@@ -40,7 +40,7 @@ pygame.init()
 class Cookie(Sprite):
     def __init__(self, cookie_max): #cookie_max represents the maximize size increase the cookie can have. Limits size.
         Sprite.__init__(self) 
-        self.image = image.load("cookie.png").convert_alpha()
+        self.image = image.load("cookie.png").convert_alpha() #loads cookies image
         self.size = self.image.get_size()
         size_inc = random.uniform(0.35, cookie_max)
         #using transform.scale to make each monster a different size
@@ -67,7 +67,7 @@ class Cookie(Sprite):
 class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
-        self.image = image.load("cookiemonster2.png").convert_alpha()
+        self.image = image.load("cookiemonster2.png").convert_alpha() #loads player image
         self.size = self.image.get_size()
         self.rect = self.image.get_rect()
 
@@ -160,17 +160,17 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 #assigns number of cookies and cookie sizes based on difficulty level
-                if event.key == pygame.K_1: 
+                if event.key == pygame.K_1: #easy level
                     minc = 10
                     maxc = 12
                     cookie_max = 1.25
                     intro = False
-                if event.key == pygame.K_2: 
+                if event.key == pygame.K_2: #medium level
                     minc = 17
                     maxc = 21
                     cookie_max = 1.6
                     intro = False
-                if event.key == pygame.K_3: 
+                if event.key == pygame.K_3: #hard level
                     minc = 24
                     maxc = 30
                     cookie_max = 2
@@ -199,8 +199,8 @@ def main():
 
             #testing for losing
             if player.rect.size < hit.rect.size: #checks if player is smaller than monster
-                print ("cookie: ", hit.rect.size)
-                print ("player: ", player.rect.size)
+                #print ("cookie: ", hit.rect.size)
+                #print ("player: ", player.rect.size)
                 mixer.Sound("lost.wav").play()
                 message("Game Over. You got squashed by a giant cookie!", RED, BLACK, screen, 170, 300)
                 pygame.time.delay(2000)
