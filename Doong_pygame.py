@@ -115,7 +115,7 @@ def make_cookies(minc, maxc, cookie_max):
         cookie_sprites.add(cookie)
         all_sprites.add(cookie)
 
-def message(msg, color, screencolor, screen, width, height):
+def message(msg, color, screencolor, screen, width, height): #display message onto screen
     myfont = pygame.font.SysFont(None, 30)
     screen.fill(screencolor)
     label = myfont.render(msg, 1, color)
@@ -134,9 +134,8 @@ pygame.time.delay(3000) #delay game start
 
 def main():
     score = 0
-    movement = 10
 
-    display.set_caption('Doong Pygame')
+    display.set_caption('Doong Monster Eat Cookie Pygame')
 
     player = Player()
 
@@ -162,19 +161,19 @@ def main():
             if event.type == pygame.KEYDOWN:
                 #assigns number of cookies and cookie sizes based on difficulty level
                 if event.key == pygame.K_1: 
-                    minc = 8
+                    minc = 10
                     maxc = 12
-                    cookie_max = 1.1
+                    cookie_max = 1.25
                     intro = False
                 if event.key == pygame.K_2: 
-                    minc = 15
-                    maxc = 20
-                    cookie_max = 1.4
+                    minc = 17
+                    maxc = 21
+                    cookie_max = 1.6
                     intro = False
                 if event.key == pygame.K_3: 
-                    minc = 23
-                    maxc = 28
-                    cookie_max = 1.8
+                    minc = 24
+                    maxc = 30
+                    cookie_max = 2
                     intro = False
 
     make_cookies(minc, maxc, cookie_max)
