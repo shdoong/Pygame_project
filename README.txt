@@ -1,6 +1,7 @@
 Susan Doong
 UMID 07675004
 SI206 Pygame Project
+Created on Windows
 
 Instructions:
 The game is Monster Eat Cookies.
